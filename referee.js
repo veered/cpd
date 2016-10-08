@@ -13,7 +13,7 @@ class Referee {
   }
 
   runWorker(mySource, otherSource, timeout) {
-    let worker = new Worker('worker.js'),
+    let worker = this.spawnWorker(),
         startTime,
         finishTime,
         choice;
@@ -55,6 +55,23 @@ class Referee {
       console.log(JSON.stringify(choices, null, '\t'));
       return choices;
     });
+  }
+
+  spawnWorker() {
+    let workerCode = this.worker.toString().split('\n').slice(1, -1).join('\n'),
+        blob = new Blob([workerCode], {type: 'application/javascript'}),
+        worker = new Worker(URL.createObjectURL(blob));
+
+    return worker;
+  }
+
+  worker() {
+    onmessage = e => {
+      let {mySource, otherSource, timeout} = e.data;
+      postMessage({state: 'started'});
+      let choice = eval(mySource)(mySource, otherSource, timeout);
+      postMessage({state: 'finished', output: choice});
+    };
   }
 
 }
