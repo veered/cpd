@@ -33,7 +33,7 @@ class Referee {
       }
     };
 
-    return new Promise(resolve => {
+    let simulate = new Promise(resolve => {
       let intervalID = setInterval(() => {
         let now = new Date();
         if (now - startTime > timeout)
@@ -49,6 +49,11 @@ class Referee {
           });
         }
       }, 100);
+    });
+
+    return simulate.then(choices => {
+      console.log(JSON.stringify(choices, null, '\t'));
+      return choices;
     });
   }
 
